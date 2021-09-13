@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-const { MessageEmbed, Message, Client, MessageButton, MessageActionRow } = require('discord.js');
+const { MessageEmbed, Message, Client, MessageButton, MessageActionRow, CommandInteraction } = require('discord.js');
 const merge = require('deepmerge');
 const utils = require('../../functions/utils');
 const defaultManagerOptions = {
@@ -41,15 +41,15 @@ class ButtonRoles {
 	toJSON() { return { roles: this.roles }; }
 
 	/**
-	 * @param {Message} message - The Discord Message
+	 * @param {CommandInteraction} message - The Discord Message
 	 * @param {MessageEmbed} embed - The Discord Embed/Content
 	 * @param {buttonroles} role - The created object using .buttonroles().addrole()
 	 * @param {String} channelID - the id of the channel you want to send the message to.
-	 * @returns {Message} - The message sent
+	 * @returns {CommandInteraction} - The message sent
 	 */
 	static async create({ message, content, role, channelID }) {
 		if (!message) throw new TypeError('Provide the Discord Message');
-		if (!(message instanceof Message)) throw Error('Provide a valid message');
+		if (!(message instanceof CommandInteraction)) throw Error('Provide a valid message');
 		if (!content) throw new Error('Provide content!');
 		if (!(content instanceof MessageEmbed) || !typeof content == 'string') throw Error('Provide valid content');
 		if (!role) throw new Error('Role not provided!');
@@ -59,6 +59,7 @@ class ButtonRoles {
 		if (!channelID.match(/[0-9]{18}/) || channelID.length !== 18) throw TypeError('Provide a valid channel ID');
 		const buttons = [];
 		const rows = [];
+		const ch = message.client.channels.cache.get(channelID)
 		// Promise.resolve(role).then(console.log);
 		// console.log(role);
 		for (const buttonObject of role.roles) {
@@ -78,19 +79,19 @@ class ButtonRoles {
 			row.addComponents(buttons.slice(0 + (i * 5), 5 + (i * 5)));
 		});
 		return await (content instanceof MessageEmbed
-			? message.client.channels.cache.get(channelID).send({ embeds: [content], components: rows })
-			: message.client.channels.cache.get(channelID).send({ content, components: rows }));
+			? ch.send({ embeds: [content], components: rows })
+			: ch.send({ content, components: rows }));
 	}
 
 	/**
-	 * @param {Message} message - The Discord Message
+	 * @param {CommandInteraction} message - The Discord Message
 	 * @param {MessageEmbed} embed - The Discord Embed/Content
 	 * @param {buttonroles} role - The created object using .buttonroles().addrole()
-	 * @returns {Message} - The message edited
+	 * @returns {CommandInteraction} - The message edited
 	 */
 	static async edit({ message, content, role }) {
 		if (!message) throw new TypeError('Provide the Discord Message');
-		if (!(message instanceof Message)) throw Error('Provide a valid message');
+		if (!(message instanceof CommandInteraction)) throw Error('Provide a valid message');
 		if (!content) throw new Error('Provide content for the message!');
 		if (!(content instanceof MessageEmbed) || !typeof content == 'string') throw Error('Provide valid content');
 		if (!role) throw new Error('Role not provided!');
@@ -121,11 +122,11 @@ class ButtonRoles {
 	}
 
 	/**
-	 * @param {Message} message - The buttonroles message sent by bot
+	 * @param {CommandInteraction} message - The buttonroles message sent by bot
 	 */
 	static delete(message) {
 		if (!message) throw Error('Provide a message');
-		if (!(message instanceof Message)) throw Error('Provide a valid message');
+		if (!(message instanceof CommandInteraction)) throw Error('Provide a valid message');
 		if (message.deleted) throw Error('The buttonrole is already deleted');
 		if (!message.deletable) throw Error('Unable to delete the message');
 		message.delete().catch((e) => { throw Error(e); });
