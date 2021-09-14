@@ -39,13 +39,7 @@ class Giveaways {
 	}
 
 	static async create({
-		message,
-		prize,
-		host,
-		winners,
-		endAfter,
-		requirements,
-		channel,
+		message, prize, host, winners, endAfter, requirements, channel,
 	}) {
 		if (!message.client.customMessages.giveawayMessages) message.client.customMessages.giveawayMessages = defaultManagerOptions;
 		if (!message) throw new Error('NuggiesError: message wasnt provided while creating giveaway!');
@@ -60,13 +54,7 @@ class Giveaways {
 		const msg = await message.guild.channels.cache.get(channel).send({
 			content: message.client.customMessages.giveawayMessages.giveaway,
 			components: [new Discord.MessageActionRow().addComponents([utils.getButtons(host)])],
-			embeds: [await utils.giveawayEmbed(message.client, {
-				host,
-				prize,
-				endAfter,
-				winners,
-				requirements
-			})],
+			embeds: [await utils.giveawayEmbed(message.client, { host, prize, endAfter, winners, requirements })],
 		});
 		const data = await new schema({
 			messageID: msg.id,
@@ -83,7 +71,7 @@ class Giveaways {
 	}
 
 	/**
-	 * @param {Discord.CommandInteraction} message
+	 * @param {Discord.Message} message
 	 * @param {mongoose.Document} data
 	 */
 
@@ -106,9 +94,7 @@ class Giveaways {
 				});
 				const embed = msg.embeds[0];
 				embed.description = replacePlaceholders(message.client.customMessages.giveawayMessages.endedGiveawayDescription, data, msg);
-				msg.edit({
-					embeds: [embed]
-				});
+				msg.edit({ embeds: [embed] });
 				utils.editButtons(message.client, data);
 				return 'NO_WINNERS';
 			}
@@ -120,22 +106,16 @@ class Giveaways {
 					.setTitle('You Won!')
 					.setDescription(replacePlaceholders(message.client.customMessages.giveawayMessages.dmMessage, data, msg, winners))
 					.setColor('RANDOM')
-					.setThumbnail(msg.guild.iconURL({
-						dynamic: true
-					}))
+					.setThumbnail(msg.guild.iconURL({ dynamic: true }))
 					.setFooter('GG!');
 				winners.forEach((user) => {
-					message.guild.members.cache.get(user).send({
-						embeds: [dmEmbed]
-					});
+					message.guild.members.cache.get(user).send({ embeds: [dmEmbed] });
 				});
 			}
 
 			const embed = msg.embeds[0];
 			embed.description = replacePlaceholders(message.client.customMessages.giveawayMessages.endedGiveawayDescription, data, msg, winners);
-			msg.edit({
-				embeds: [embed]
-			}).catch((err) => console.log(err));
+			msg.edit({ embeds: [embed] }).catch((err) => console.log(err));
 			data.ended = true;
 			data.save().catch((err) => {
 				console.log(err);
@@ -157,10 +137,7 @@ class Giveaways {
 		const data = await this.getByMessageID(messageID);
 		const msg = await client.guilds.cache.get(data.guildID).channels.cache.get(data.channelID).messages.fetch(messageID);
 		const res = (await this.end(msg, data, msg));
-		if (res == 'ENDED') button.reply({
-			content: replacePlaceholders(client.customMessages.giveawayMessages.alreadyEnded, data, msg),
-			ephemeral: true
-		});
+		if (res == 'ENDED') button.reply({ content: replacePlaceholders(client.customMessages.giveawayMessages.alreadyEnded, data, msg), ephemeral: true });
 	}
 
 	static async end(message, data, giveawaymsg) {
@@ -178,9 +155,7 @@ class Giveaways {
 			data.save();
 			const embed = giveawaymsg.embeds[0];
 			embed.description = replacePlaceholders(message.client.customMessages.giveawayMessages.endedGiveawayDescription, data, msg);
-			giveawaymsg.edit({
-				embeds: [embed]
-			}).catch((err) => console.log(err));
+			giveawaymsg.edit({ embeds: [embed] }).catch((err) => console.log(err));
 			utils.editButtons(message.client, data);
 			return 'NO_WINNERS';
 		}
@@ -190,22 +165,16 @@ class Giveaways {
 				.setTitle('You Won!')
 				.setDescription(replacePlaceholders(message.client.customMessages.giveawayMessages.dmMessage, data, msg, winners))
 				.setColor('RANDOM')
-				.setThumbnail(msg.guild.iconURL({
-					dynamic: true
-				}))
+				.setThumbnail(msg.guild.iconURL({ dynamic: true }))
 				.setFooter('GG!');
 			winners.forEach((user) => {
-				message.guild.members.cache.get(user).send({
-					embeds: [dmEmbed]
-				});
+				message.guild.members.cache.get(user).send({ embeds: [dmEmbed] });
 			});
 		}
 
 		const embed = giveawaymsg.embeds[0];
 		embed.description = replacePlaceholders(message.client.customMessages.giveawayMessages.endedGiveawayDescription, data, msg, winners);
-		giveawaymsg.edit({
-			embeds: [embed]
-		}).catch((err) => console.log(err));
+		giveawaymsg.edit({ embeds: [embed] }).catch((err) => console.log(err));
 		data.ended = true;
 		data.save().catch((err) => {
 			console.log(err);
@@ -224,28 +193,20 @@ class Giveaways {
 			.setTitle('You Won!')
 			.setDescription(replacePlaceholders(client.customMessages.giveawayMessages.dmMessage, data, msg, chosen))
 			.setColor('RANDOM')
-			.setThumbnail(msg.guild.iconURL({
-				dynamic: true
-			}))
+			.setThumbnail(msg.guild.iconURL({ dynamic: true }))
 			.setFooter('GG!');
 		chosen.forEach((user) => {
-			client.users.cache.get(user).send({
-				embeds: [dmEmbed]
-			});
+			client.users.cache.get(user).send({ embeds: [dmEmbed] });
 		});
 		return chosen;
 	}
 	static async getByMessageID(messageID) {
-		const doc = await schema.findOne({
-			messageID: messageID
-		});
+		const doc = await schema.findOne({ messageID: messageID });
 		if (!doc) return;
 		return doc;
 	}
 	static async startAgain(client) {
-		await schema.find({
-			ended: false
-		}, async (err, data) => {
+		await schema.find({ ended: false }, async (err, data) => {
 			setTimeout(async () => {
 				if (err) throw err;
 
@@ -262,12 +223,7 @@ class Giveaways {
 			}, 10000);
 		});
 	}
-	static async drop({
-		message,
-		channel,
-		prize,
-		host
-	}) {
+	static async drop({ message, channel, prize, host }) {
 		// eslint-disable-next-line no-unused-vars
 		let ended;
 		if (!message.client.customMessages.giveawayMessages) message.client.customMessages.giveawayMessages = defaultManagerOptions;
@@ -276,19 +232,9 @@ class Giveaways {
 		if (!prize) throw new Error('NuggiesError: prize not provided');
 		if (!message) throw new Error('NuggiesError: message not provided');
 
-		const m = await message.client.channels.cache.get(channel).send({
-			embeds: [await utils.dropEmbed(message.client, {
-				prize: prize,
-				host: host
-			})],
-			components: [await utils.dropButtons(prize)]
-		});
+		const m = await message.client.channels.cache.get(channel).send({ embeds: [await utils.dropEmbed(message.client, { prize: prize, host: host })], components: [await utils.dropButtons(prize)] });
 		const filter = (button) => button.member.id === message.author.id;
-		const collector = await m.createMessageComponentCollector({
-			filter,
-			time: 90000,
-			max: 1
-		});
+		const collector = await m.createMessageComponentCollector({ filter, time: 90000, max: 1 });
 		collector.on('collect', async (b) => {
 			b.deferUpdate();
 			ended = true;
@@ -298,7 +244,6 @@ class Giveaways {
 		});
 	}
 }
-
 function replacePlaceholders(string, data, msg, winners = []) {
 	const newString = string.replace(/{guildName}/g, msg.guild.name).replace(/{prize}/g, data.prize).replace(/{giveawayURL}/g, `https://discord.com/channels/${msg.guild.id}/${msg.channel.id}/${data.messageID}`).replace(/{hostedBy}/g, msg.guild.members.cache.get(data.host).toString()).replace(/{winners}/g, winners.length > 0 ? winners.map(winner => `<@${winner}>`).join(', ') : 'none' || 'none');
 	return newString;
