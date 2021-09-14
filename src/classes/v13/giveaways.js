@@ -83,7 +83,7 @@ class Giveaways {
 	}
 
 	/**
-	 * @param {Discord.Message} message
+	 * @param {Discord.CommandInteraction} message
 	 * @param {mongoose.Document} data
 	 */
 
@@ -120,10 +120,6 @@ class Giveaways {
 					.setTitle('You Won!')
 					.setDescription(replacePlaceholders(message.client.customMessages.giveawayMessages.dmMessage, data, msg, winners))
 					.setColor('RANDOM')
-					.addFields({
-						name: '💝 People Entered',
-						value: `***0***`
-					}, )
 					.setThumbnail(msg.guild.iconURL({
 						dynamic: true
 					}))

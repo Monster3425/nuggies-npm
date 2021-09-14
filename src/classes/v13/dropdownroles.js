@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-const { MessageEmbed, Client, MessageActionRow, MessageSelectMenu } = require('discord.js');
+const { MessageEmbed, Client, MessageActionRow, MessageSelectMenu, CommandInteraction } = require('discord.js');
 const defaultManagerOptions = {
 	addMessage: 'I have added the <@&{role}> role to you!',
 	removeMessage: 'I have removed the <@&{role}> role from you!',
@@ -36,7 +36,7 @@ class DropdownRoles {
 
 	/**
  *
- * @param {Message} message - The Discord Message
+ * @param {CommandInteraction} message - The Discord Message
  * @param {String} content - The Discord send data, can be an embed or string
  * @param {String} role - The role ID of the role
  * @param {String} channelID - The channel ID that will be recieving the dropdown
