@@ -184,7 +184,7 @@ class Applications {
 			questions: [],
 		};
 		message.channel.send('What should be the name of the application?');
-		const filter = m => m.user.id === message.user.id;
+		const filter = m => m.author.id === message.author.id;
 		const collector = message.channel.createMessageCollector({ filter });
 		let step = 0;
 		collector.on('collect', async (msg) => {
